@@ -1,18 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HeaderComponent } from './header.component';
-
-interface Shift {
-  id: number;
-  hospital: string;
-  datetime: string;
-  specialty: string;
-  value: number;
-  status: 'open' | 'filled';
-  assignedDoctor?: string;
-}
+import { Shift, ShiftService } from '../services/shift.service';
 
 @Component({
   selector: 'app-admin-shifts',
@@ -146,7 +137,7 @@ interface Shift {
                 <div class="shift-details">
                   <div class="detail-row">
                     <span class="detail-label">📅 Data/Hora:</span>
-                    <span>{{ shift.datetime }}</span>
+                    <span>{{ formatDate(shift.date) }} {{ shift.time }}</span>
                   </div>
                   <div class="detail-row">
                     <span class="detail-label">🏥 Especialidade:</span>
@@ -162,9 +153,6 @@ interface Shift {
                   </div>
                 </div>
                 <div class="shift-actions">
-                  <button class="btn btn-secondary btn-small" (click)="editShift(shift.id)">
-                    Editar
-                  </button>
                   <button class="btn btn-secondary btn-small" (click)="deleteShift(shift.id)">
                     Remover
                   </button>
@@ -389,7 +377,7 @@ interface Shift {
     }
   `]
 })
-export class AdminShiftsComponent {
+export class AdminShiftsComponent implements OnInit {
   newShift = {
     hospital: '',
     date: '',
@@ -399,29 +387,22 @@ export class AdminShiftsComponent {
   };
 
   filter: 'all' | 'open' | 'filled' = 'all';
+  shifts: Shift[] = [];
 
-  shifts: Shift[] = [
-    { id: 1, hospital: 'Hospital São Lucas', datetime: '25/11/2025 08:00', specialty: 'Cardiologia', value: 1200, status: 'filled', assignedDoctor: 'Dr. Carlos Silva' },
-    { id: 2, hospital: 'Hospital Central', datetime: '25/11/2025 20:00', specialty: 'Emergência', value: 1500, status: 'open' },
-    { id: 3, hospital: 'Clínica Santa Maria', datetime: '26/11/2025 08:00', specialty: 'Pediatria', value: 1000, status: 'open' },
-    { id: 4, hospital: 'Hospital São Lucas', datetime: '26/11/2025 14:00', specialty: 'Ortopedia', value: 1300, status: 'filled', assignedDoctor: 'Dra. Maria Santos' },
-    { id: 5, hospital: 'Hospital Central', datetime: '27/11/2025 08:00', specialty: 'Clínica Geral', value: 900, status: 'open' }
-  ];
+  constructor(
+    private router: Router,
+    private shiftService: ShiftService
+  ) { }
 
-  constructor(private router: Router) {}
+  ngOnInit() {
+    this.shiftService.shifts$.subscribe(shifts => {
+      this.shifts = shifts;
+    });
+  }
 
   publishShift() {
     if (this.newShift.hospital && this.newShift.date && this.newShift.time && this.newShift.specialty && this.newShift.value) {
-      const shift: Shift = {
-        id: this.shifts.length + 1,
-        hospital: this.newShift.hospital,
-        datetime: `${this.formatDate(this.newShift.date)} ${this.newShift.time}`,
-        specialty: this.newShift.specialty,
-        value: this.newShift.value,
-        status: 'open'
-      };
-
-      this.shifts.unshift(shift);
+      this.shiftService.addShift(this.newShift);
 
       this.newShift = {
         hospital: '',
@@ -457,13 +438,9 @@ export class AdminShiftsComponent {
     return this.shifts.filter(shift => shift.status === 'filled').length;
   }
 
-  editShift(id: number) {
-    console.log('Editing shift:', id);
-  }
-
   deleteShift(id: number) {
     if (confirm('Tem certeza que deseja remover este plantão?')) {
-      this.shifts = this.shifts.filter(shift => shift.id !== id);
+      this.shiftService.deleteShift(id);
     }
   }
 

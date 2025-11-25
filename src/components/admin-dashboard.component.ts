@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HeaderComponent } from './header.component';
+import { Shift, ShiftService } from '../services/shift.service';
 
 interface MetricCard {
   title: string;
@@ -49,12 +50,12 @@ interface MetricCard {
             </div>
             <div class="table-row" *ngFor="let shift of recentShifts">
               <div class="shift-hospital">{{ shift.hospital }}</div>
-              <div class="shift-datetime">{{ shift.datetime }}</div>
+              <div class="shift-datetime">{{ formatDate(shift.date) }} {{ shift.time }}</div>
               <div class="shift-specialty">{{ shift.specialty }}</div>
               <div class="shift-value">R$ {{ shift.value }}</div>
               <div class="shift-status">
                 <span [class]="'status-badge status-' + shift.status">
-                  {{ shift.statusLabel }}
+                  {{ shift.status === 'open' ? 'Aberto' : 'Preenchido' }}
                 </span>
               </div>
             </div>
@@ -295,20 +296,8 @@ interface MetricCard {
   `]
 })
 export class AdminDashboardComponent implements OnInit {
-  metrics: MetricCard[] = [
-    { title: 'Total de Médicos', value: 48, icon: '👨‍⚕️', trend: '+5 este mês' },
-    { title: 'Médicos em Espera', value: 8, icon: '⏳', trend: 'Aguardando aprovação' },
-    { title: 'Plantões Ativos', value: 24, icon: '📋', trend: '+12 esta semana' },
-    { title: 'Taxa de Preenchimento', value: 95, icon: '✅', trend: '95%' }
-  ];
-
-  recentShifts = [
-    { hospital: 'Hospital São Lucas', datetime: '25/11/2025 08:00', specialty: 'Cardiologia', value: 1200, status: 'filled', statusLabel: 'Preenchido' },
-    { hospital: 'Hospital Central', datetime: '25/11/2025 20:00', specialty: 'Emergência', value: 1500, status: 'open', statusLabel: 'Aberto' },
-    { hospital: 'Clínica Santa Maria', datetime: '26/11/2025 08:00', specialty: 'Pediatria', value: 1000, status: 'open', statusLabel: 'Aberto' },
-    { hospital: 'Hospital São Lucas', datetime: '26/11/2025 14:00', specialty: 'Ortopedia', value: 1300, status: 'filled', statusLabel: 'Preenchido' },
-    { hospital: 'Hospital Central', datetime: '27/11/2025 08:00', specialty: 'Clínica Geral', value: 900, status: 'open', statusLabel: 'Aberto' }
-  ];
+  metrics: MetricCard[] = [];
+  recentShifts: Shift[] = [];
 
   waitingDoctors = [
     { id: 1, name: 'Dr. Carlos Silva', specialty: 'Cardiologia', email: 'carlos.silva@email.com' },
@@ -316,9 +305,35 @@ export class AdminDashboardComponent implements OnInit {
     { id: 3, name: 'Dr. João Oliveira', specialty: 'Ortopedia', email: 'joao.oliveira@email.com' }
   ];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private shiftService: ShiftService
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.shiftService.shifts$.subscribe(shifts => {
+      this.recentShifts = shifts.slice(0, 5);
+      this.updateMetrics(shifts);
+    });
+  }
+
+  updateMetrics(shifts: Shift[]) {
+    const totalShifts = shifts.length;
+    const filledShifts = shifts.filter(s => s.status === 'filled').length;
+    const fillRate = totalShifts > 0 ? Math.round((filledShifts / totalShifts) * 100) : 0;
+
+    this.metrics = [
+      { title: 'Total de Médicos', value: 48, icon: '👨‍⚕️', trend: '+5 este mês' },
+      { title: 'Médicos em Espera', value: this.waitingDoctors.length, icon: '⏳', trend: 'Aguardando aprovação' },
+      { title: 'Plantões Ativos', value: totalShifts, icon: '📋', trend: `+${shifts.length} total` },
+      { title: 'Taxa de Preenchimento', value: fillRate, icon: '✅', trend: `${fillRate}%` }
+    ];
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR');
+  }
 
   navigateTo(route: string) {
     this.router.navigate([route]);
@@ -327,10 +342,12 @@ export class AdminDashboardComponent implements OnInit {
   approveDoctor(id: number) {
     console.log('Approving doctor:', id);
     this.waitingDoctors = this.waitingDoctors.filter(d => d.id !== id);
+    this.updateMetrics(this.shiftService.getShifts());
   }
 
   rejectDoctor(id: number) {
     console.log('Rejecting doctor:', id);
     this.waitingDoctors = this.waitingDoctors.filter(d => d.id !== id);
+    this.updateMetrics(this.shiftService.getShifts());
   }
 }

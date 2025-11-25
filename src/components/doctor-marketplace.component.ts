@@ -3,17 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HeaderComponent } from './header.component';
-
-interface MarketplaceShift {
-  id: number;
-  hospital: string;
-  date: string;
-  time: string;
-  specialty: string;
-  value: number;
-  duration: string;
-  description: string;
-}
+import { Shift, ShiftService } from '../services/shift.service';
 
 @Component({
   selector: 'app-doctor-marketplace',
@@ -125,22 +115,15 @@ interface MarketplaceShift {
                 <span class="info-label">🏥 Especialidade</span>
                 <span class="info-value">{{ shift.specialty }}</span>
               </div>
-              <div class="info-item">
-                <span class="info-label">⏱️ Duração</span>
-                <span class="info-value">{{ shift.duration }}</span>
-              </div>
             </div>
 
-            <div class="shift-description">
+            <div class="shift-description" *ngIf="shift.description">
               <p>{{ shift.description }}</p>
             </div>
 
             <div class="shift-actions">
               <button class="btn btn-primary btn-full" (click)="acceptShift(shift.id)">
                 Aceitar Plantão
-              </button>
-              <button class="btn btn-secondary btn-full" (click)="viewDetails(shift.id)">
-                Ver Detalhes
               </button>
             </div>
           </div>
@@ -401,70 +384,8 @@ interface MarketplaceShift {
   `]
 })
 export class DoctorMarketplaceComponent implements OnInit {
-  availableShifts: MarketplaceShift[] = [
-    {
-      id: 1,
-      hospital: 'Hospital São Lucas',
-      date: '2025-11-30',
-      time: '08:00 - 20:00',
-      specialty: 'Cardiologia',
-      value: 1200,
-      duration: '12 horas',
-      description: 'Plantão de cardiologia no pronto socorro. Experiência em emergências cardíacas preferencial.'
-    },
-    {
-      id: 2,
-      hospital: 'Hospital Central',
-      date: '2025-12-01',
-      time: '20:00 - 08:00',
-      specialty: 'Emergência',
-      value: 1800,
-      duration: '12 horas',
-      description: 'Plantão noturno de emergência. Hospital de grande porte com UTI.'
-    },
-    {
-      id: 3,
-      hospital: 'Clínica Santa Maria',
-      date: '2025-11-30',
-      time: '14:00 - 22:00',
-      specialty: 'Pediatria',
-      value: 1000,
-      duration: '8 horas',
-      description: 'Atendimento pediátrico ambulatorial. Foco em consultas de rotina.'
-    },
-    {
-      id: 4,
-      hospital: 'Hospital Regional',
-      date: '2025-12-02',
-      time: '08:00 - 18:00',
-      specialty: 'Ortopedia',
-      value: 1400,
-      duration: '10 horas',
-      description: 'Plantão de ortopedia com atendimento ambulatorial e pequenas cirurgias.'
-    },
-    {
-      id: 5,
-      hospital: 'Hospital Central',
-      date: '2025-12-03',
-      time: '08:00 - 20:00',
-      specialty: 'Clínica Geral',
-      value: 900,
-      duration: '12 horas',
-      description: 'Atendimento de clínica geral no ambulatório. Ideal para médicos generalistas.'
-    },
-    {
-      id: 6,
-      hospital: 'Hospital São Lucas',
-      date: '2025-12-04',
-      time: '14:00 - 22:00',
-      specialty: 'Cardiologia',
-      value: 1300,
-      duration: '8 horas',
-      description: 'Plantão de cardiologia com foco em pacientes internados.'
-    }
-  ];
-
-  filteredShifts: MarketplaceShift[] = [];
+  availableShifts: Shift[] = [];
+  filteredShifts: Shift[] = [];
 
   filters = {
     specialty: '',
@@ -472,10 +393,17 @@ export class DoctorMarketplaceComponent implements OnInit {
     dateFrom: ''
   };
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private shiftService: ShiftService
+  ) { }
 
   ngOnInit() {
-    this.filteredShifts = [...this.availableShifts];
+    this.shiftService.shifts$.subscribe(shifts => {
+      // Filtrar apenas plantões abertos
+      this.availableShifts = shifts.filter(s => s.status === 'open');
+      this.applyFilters();
+    });
   }
 
   applyFilters() {
@@ -499,20 +427,25 @@ export class DoctorMarketplaceComponent implements OnInit {
       minValue: 0,
       dateFrom: ''
     };
-    this.filteredShifts = [...this.availableShifts];
+    this.applyFilters();
   }
 
   getNewShiftsCount(): number {
-    return 3;
+    // Simulação: plantões criados hoje
+    const today = new Date().toISOString().split('T')[0];
+    // Como não temos data de criação, vamos assumir que plantões para datas futuras próximas são "novos"
+    return this.availableShifts.filter(s => s.date >= today).length;
   }
 
   getAverageValue(): number {
+    if (this.availableShifts.length === 0) return 0;
     const total = this.availableShifts.reduce((sum, shift) => sum + shift.value, 0);
     return Math.round(total / this.availableShifts.length);
   }
 
-  isNew(shift: MarketplaceShift): boolean {
-    return shift.id <= 2;
+  isNew(shift: Shift): boolean {
+    // Simulação visual
+    return shift.id > 5;
   }
 
   formatDate(dateString: string): string {
@@ -522,14 +455,12 @@ export class DoctorMarketplaceComponent implements OnInit {
 
   acceptShift(id: number) {
     if (confirm('Deseja aceitar este plantão?')) {
-      alert('Plantão aceito com sucesso! Você pode visualizá-lo na sua agenda.');
-      this.availableShifts = this.availableShifts.filter(shift => shift.id !== id);
-      this.applyFilters();
-    }
-  }
+      const userStr = localStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : { name: 'Dr. Desconhecido', email: 'doctor' };
 
-  viewDetails(id: number) {
-    console.log('View details:', id);
+      this.shiftService.assignDoctor(id, user.name, user.email);
+      alert('Plantão aceito com sucesso! Você pode visualizá-lo na sua agenda.');
+    }
   }
 
   navigateTo(route: string) {

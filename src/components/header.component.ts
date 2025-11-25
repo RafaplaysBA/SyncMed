@@ -135,7 +135,7 @@ export class HeaderComponent {
   @Input() userType: 'guest' | 'admin' | 'doctor' = 'guest';
   mobileMenuOpen = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   toggleMobileMenu() {
     this.mobileMenuOpen = !this.mobileMenuOpen;
@@ -148,6 +148,7 @@ export class HeaderComponent {
 
   logout() {
     this.mobileMenuOpen = false;
+    localStorage.removeItem('user');
     this.router.navigate(['/']);
   }
 }
