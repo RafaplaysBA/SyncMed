@@ -1,0 +1,119 @@
+<app-header [userType]="'guest'"></app-header>
+
+<section class="hero">
+    <div class="carousel-container">
+        <div class="carousel-slide" *ngFor="let image of carouselImages; let i = index"
+            [class.active]="i === currentSlide">
+            <img [src]="image.src" [alt]="image.alt">
+            <div class="hero-overlay"></div>
+        </div>
+
+        <div class="container hero-content-wrapper">
+            <div class="hero-content">
+                <h1>Gestão de Plantões Médicos Simplificada</h1>
+                <p class="hero-subtitle">
+                    Pare de perder tempo com planilhas e WhatsApp. Gerencie escalas médicas de forma profissional e
+                    eficiente.
+                </p>
+                <div class="hero-cta">
+                    <button class="btn btn-primary" (click)="navigateTo('/register')">
+                        Comece Gratuitamente
+                    </button>
+                    <button class="btn btn-secondary" (click)="scrollToFeatures()">
+                        Saiba Mais
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="carousel-indicators">
+            <button *ngFor="let image of carouselImages; let i = index" [class.active]="i === currentSlide"
+                (click)="setSlide(i)" aria-label="Slide indicator">
+            </button>
+        </div>
+    </div>
+</section>
+
+<section class="features" id="features">
+    <div class="container">
+        <h2 class="section-title">Como o SyncMed Funciona</h2>
+        <div class="features-grid">
+            <div class="feature-card" *ngFor="let feature of features">
+                <div class="feature-icon">{{ feature.icon }}</div>
+                <h3>{{ feature.title }}</h3>
+                <p>{{ feature.description }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="benefits">
+    <div class="container">
+        <h2 class="section-title">Benefícios Para Todos</h2>
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <h3>Para Hospitais e Coordenadores</h3>
+                <ul>
+                    <li>✓ Publique plantões em segundos</li>
+                    <li>✓ Visão completa da escala</li>
+                    <li>✓ Reduza falhas de comunicação</li>
+                    <li>✓ Métricas e relatórios em tempo real</li>
+                </ul>
+            </div>
+            <div class="benefit-card">
+                <h3>Para Médicos</h3>
+                <ul>
+                    <li>✓ Aceite plantões com um clique</li>
+                    <li>✓ Visualize sua agenda completa</li>
+                    <li>✓ Acompanhe ganhos e horas trabalhadas</li>
+                    <li>✓ Marketplace de oportunidades</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="social-proof">
+    <div class="container">
+        <h2 class="section-title">Confiança e Resultados</h2>
+        <div class="stats-grid">
+            <div class="stat">
+                <div class="stat-number">500+</div>
+                <div class="stat-label">Médicos Cadastrados</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">Hospitais Parceiros</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">10k+</div>
+                <div class="stat-label">Plantões Gerenciados</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">98%</div>
+                <div class="stat-label">Satisfação</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-final">
+    <div class="container">
+        <h2>Pronto para transformar a gestão de plantões?</h2>
+        <p>Junte-se a centenas de profissionais que já confiam no SyncMed</p>
+        <div class="cta-buttons">
+            <button class="btn btn-primary" (click)="navigateTo('/register')">
+                Criar Conta Agora
+            </button>
+            <button class="btn btn-secondary" (click)="navigateTo('/login')">
+                Já tenho conta
+            </button>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <p>&copy; 2025 SyncMed. Todos os direitos reservados.</p>
+    </div>
+</footer>

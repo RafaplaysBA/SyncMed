@@ -1,0 +1,118 @@
+<app-header [userType]="'doctor'"></app-header>
+
+<div class="marketplace">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1>Marketplace de Plantões</h1>
+                <p class="subtitle">Encontre e aceite plantões disponíveis</p>
+            </div>
+            <button class="btn btn-secondary" (click)="navigateTo('/doctor/dashboard')">
+                Voltar ao Dashboard
+            </button>
+        </div>
+
+        <div class="marketplace-summary">
+            <div class="summary-item">
+                <span class="summary-icon">📋</span>
+                <div>
+                    <div class="summary-value">{{ availableShifts.length }}</div>
+                    <div class="summary-label">Plantões Disponíveis</div>
+                </div>
+            </div>
+            <div class="summary-item">
+                <span class="summary-icon">🆕</span>
+                <div>
+                    <div class="summary-value">{{ getNewShiftsCount() }}</div>
+                    <div class="summary-label">Novos Hoje</div>
+                </div>
+            </div>
+            <div class="summary-item">
+                <span class="summary-icon">💰</span>
+                <div>
+                    <div class="summary-value">R$ {{ getAverageValue() }}</div>
+                    <div class="summary-label">Valor Médio</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters-section">
+            <h3>Filtros</h3>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="specialty">Especialidade</label>
+                    <select id="specialty" [(ngModel)]="filters.specialty" (change)="applyFilters()">
+                        <option value="">Todas</option>
+                        <option value="Cardiologia">Cardiologia</option>
+                        <option value="Pediatria">Pediatria</option>
+                        <option value="Ortopedia">Ortopedia</option>
+                        <option value="Emergência">Emergência</option>
+                        <option value="Clínica Geral">Clínica Geral</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="minValue">Valor Mínimo</label>
+                    <input type="number" id="minValue" [(ngModel)]="filters.minValue" (input)="applyFilters()"
+                        placeholder="R$ 0" min="0" />
+                </div>
+
+                <div class="filter-group">
+                    <label for="dateFrom">Data Inicial</label>
+                    <input type="date" id="dateFrom" [(ngModel)]="filters.dateFrom" (change)="applyFilters()" />
+                </div>
+
+                <button class="btn btn-secondary btn-small" (click)="clearFilters()">
+                    Limpar Filtros
+                </button>
+            </div>
+        </div>
+
+        <div class="shifts-grid">
+            <div class="shift-card" *ngFor="let shift of filteredShifts">
+                <div class="shift-badge">
+                    <span class="badge-new" *ngIf="isNew(shift)">NOVO</span>
+                </div>
+
+                <div class="shift-header">
+                    <h3>{{ shift.hospital }}</h3>
+                    <div class="shift-value-badge">R$ {{ shift.value }}</div>
+                </div>
+
+                <div class="shift-info-grid">
+                    <div class="info-item">
+                        <span class="info-label">📅 Data</span>
+                        <span class="info-value">{{ formatDate(shift.date) }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">🕐 Horário</span>
+                        <span class="info-value">{{ shift.time }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">🏥 Especialidade</span>
+                        <span class="info-value">{{ shift.specialty }}</span>
+                    </div>
+                </div>
+
+                <div class="shift-description" *ngIf="shift.description">
+                    <p>{{ shift.description }}</p>
+                </div>
+
+                <div class="shift-actions">
+                    <button class="btn btn-primary btn-full" (click)="acceptShift(shift.id)">
+                        Aceitar Plantão
+                    </button>
+                </div>
+            </div>
+
+            <div class="empty-state" *ngIf="filteredShifts.length === 0">
+                <div class="empty-icon">🔍</div>
+                <h3>Nenhum plantão encontrado</h3>
+                <p>Tente ajustar os filtros ou volte mais tarde para ver novos plantões</p>
+                <button class="btn btn-primary" (click)="clearFilters()">
+                    Limpar Filtros
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

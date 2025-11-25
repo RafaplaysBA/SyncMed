@@ -2,13 +2,13 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HeaderComponent } from '../header.component';
+import { HeaderComponent } from '../header/header.component';
 
 @Component({
-    selector: 'app-register',
-    standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, HeaderComponent],
-    template: `
+  selector: 'app-register',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, HeaderComponent],
+  template: `
     <app-header [userType]="'guest'"></app-header>
     
     <div class="auth-container">
@@ -79,7 +79,7 @@ import { HeaderComponent } from '../header.component';
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .auth-container {
       min-height: calc(100vh - 70px);
       display: flex;
@@ -148,46 +148,46 @@ import { HeaderComponent } from '../header.component';
   `]
 })
 export class RegisterComponent {
-    registerForm: FormGroup;
-    isLoading = false;
+  registerForm: FormGroup;
+  isLoading = false;
 
-    constructor(
-        private fb: FormBuilder,
-        private router: Router
-    ) {
-        this.registerForm = this.fb.group({
-            name: ['', Validators.required],
-            email: ['', [Validators.required, Validators.email]],
-            userType: ['doctor', Validators.required],
-            specialty: [''],
-            password: ['', [Validators.required, Validators.minLength(6)]]
-        });
+  constructor(
+    private fb: FormBuilder,
+    private router: Router
+  ) {
+    this.registerForm = this.fb.group({
+      name: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      userType: ['doctor', Validators.required],
+      specialty: [''],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+  }
+
+  isFieldInvalid(field: string): boolean {
+    const control = this.registerForm.get(field);
+    return !!(control && control.invalid && (control.dirty || control.touched));
+  }
+
+  onSubmit() {
+    if (this.registerForm.valid) {
+      this.isLoading = true;
+      const { email, name, userType } = this.registerForm.value;
+
+      setTimeout(() => {
+        localStorage.setItem('user', JSON.stringify({
+          email,
+          type: userType,
+          name
+        }));
+
+        this.isLoading = false;
+        this.router.navigate([userType === 'admin' ? '/admin/dashboard' : '/doctor/dashboard']);
+      }, 1000);
     }
+  }
 
-    isFieldInvalid(field: string): boolean {
-        const control = this.registerForm.get(field);
-        return !!(control && control.invalid && (control.dirty || control.touched));
-    }
-
-    onSubmit() {
-        if (this.registerForm.valid) {
-            this.isLoading = true;
-            const { email, name, userType } = this.registerForm.value;
-
-            setTimeout(() => {
-                localStorage.setItem('user', JSON.stringify({
-                    email,
-                    type: userType,
-                    name
-                }));
-
-                this.isLoading = false;
-                this.router.navigate([userType === 'admin' ? '/admin/dashboard' : '/doctor/dashboard']);
-            }, 1000);
-        }
-    }
-
-    navigateTo(route: string) {
-        this.router.navigate([route]);
-    }
+  navigateTo(route: string) {
+    this.router.navigate([route]);
+  }
 }

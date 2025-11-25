@@ -1,0 +1,118 @@
+<app-header [userType]="'doctor'"></app-header>
+
+<div class="schedule">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1>Minha Agenda</h1>
+                <p class="subtitle">Visualize todos os seus plantões agendados</p>
+            </div>
+            <button class="btn btn-secondary" (click)="navigateTo('/doctor/dashboard')">
+                Voltar ao Dashboard
+            </button>
+        </div>
+
+        <div class="schedule-stats">
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ getTotalShifts() }}</div>
+                    <div class="stat-label">Total de Plantões</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ getUpcomingCount() }}</div>
+                    <div class="stat-label">Próximos</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ getCompletedCount() }}</div>
+                    <div class="stat-label">Concluídos</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-content">
+                    <div class="stat-value">R$ {{ getTotalValue() }}</div>
+                    <div class="stat-label">Total Ganhos</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn" [class.active]="filter === 'all'" (click)="setFilter('all')">
+                Todos
+            </button>
+            <button class="filter-btn" [class.active]="filter === 'upcoming'" (click)="setFilter('upcoming')">
+                Próximos
+            </button>
+            <button class="filter-btn" [class.active]="filter === 'completed'" (click)="setFilter('completed')">
+                Concluídos
+            </button>
+        </div>
+
+        <div class="calendar-view">
+            <div class="month-navigation">
+                <button class="nav-btn" (click)="previousMonth()">‹</button>
+                <h2>{{ currentMonth }}</h2>
+                <button class="nav-btn" (click)="nextMonth()">›</button>
+            </div>
+
+            <div class="schedule-list">
+                <div class="schedule-card" *ngFor="let shift of getFilteredShifts()">
+                    <div class="schedule-date">
+                        <div class="date-day">{{ getDay(shift.date) }}</div>
+                        <div class="date-info">
+                            <div class="date-month">{{ getMonthName(shift.date) }}</div>
+                            <div class="date-weekday">{{ shift.dayOfWeek }}</div>
+                        </div>
+                    </div>
+
+                    <div class="schedule-details">
+                        <div class="schedule-header">
+                            <h3>{{ shift.hospital }}</h3>
+                            <span [class]="'status-badge status-' + shift.status">
+                                {{ getStatusLabel(shift.status) }}
+                            </span>
+                        </div>
+
+                        <div class="schedule-info">
+                            <div class="info-item">
+                                <span class="info-icon">🕐</span>
+                                <span>{{ shift.time }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-icon">🏥</span>
+                                <span>{{ shift.specialty }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-icon">💰</span>
+                                <span class="value">R$ {{ shift.value }}</span>
+                            </div>
+                        </div>
+
+                        <div class="schedule-actions" *ngIf="shift.status === 'upcoming'">
+                            <button class="btn btn-secondary btn-small" (click)="viewDetails(shift.id)">
+                                Ver Detalhes
+                            </button>
+                            <button class="btn btn-secondary btn-small cancel-btn" (click)="cancelShift(shift.id)">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-state" *ngIf="getFilteredShifts().length === 0">
+                    <p>Nenhum plantão encontrado</p>
+                    <button class="btn btn-primary" (click)="navigateTo('/doctor/marketplace')">
+                        Buscar Plantões
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

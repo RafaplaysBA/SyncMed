@@ -1,0 +1,68 @@
+<app-header [userType]="'admin'"></app-header>
+
+<div class="dashboard">
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Dashboard Administrativo</h1>
+            <button class="btn btn-primary" (click)="navigateTo('/admin/shifts')">
+                Publicar Novo Plantão
+            </button>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card" *ngFor="let metric of metrics">
+                <div class="metric-icon">{{ metric.icon }}</div>
+                <div class="metric-content">
+                    <h3>{{ metric.title }}</h3>
+                    <div class="metric-value">{{ metric.value }}</div>
+                    <div class="metric-trend" *ngIf="metric.trend">{{ metric.trend }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-section">
+            <h2>Plantões Recentes</h2>
+            <div class="shifts-table">
+                <div class="table-header">
+                    <div>Hospital</div>
+                    <div>Data/Hora</div>
+                    <div>Especialidade</div>
+                    <div>Valor</div>
+                    <div>Status</div>
+                </div>
+                <div class="table-row" *ngFor="let shift of recentShifts">
+                    <div class="shift-hospital">{{ shift.hospital }}</div>
+                    <div class="shift-datetime">{{ formatDate(shift.date) }} {{ shift.time }}</div>
+                    <div class="shift-specialty">{{ shift.specialty }}</div>
+                    <div class="shift-value">R$ {{ shift.value }}</div>
+                    <div class="shift-status">
+                        <span [class]="'status-badge status-' + shift.status">
+                            {{ shift.status === 'open' ? 'Aberto' : 'Preenchido' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-section">
+            <h2>Médicos em Lista de Espera</h2>
+            <div class="waiting-list">
+                <div class="waiting-card" *ngFor="let doctor of waitingDoctors">
+                    <div class="doctor-info">
+                        <h4>{{ doctor.name }}</h4>
+                        <p>{{ doctor.specialty }}</p>
+                        <p class="doctor-email">{{ doctor.email }}</p>
+                    </div>
+                    <div class="doctor-actions">
+                        <button class="btn btn-primary btn-small" (click)="approveDoctor(doctor.id)">
+                            Aprovar
+                        </button>
+                        <button class="btn btn-secondary btn-small" (click)="rejectDoctor(doctor.id)">
+                            Recusar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

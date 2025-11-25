@@ -1,0 +1,31 @@
+<header class="header">
+    <div class="container">
+        <div class="header-content">
+            <div class="logo" (click)="navigateTo('/')">
+                <h2>SyncMed</h2>
+            </div>
+            <nav class="nav" [class.show]="mobileMenuOpen">
+                <ng-container *ngIf="userType === 'guest'">
+                    <button class="btn btn-secondary btn-small" (click)="navigateTo('/login')">Login</button>
+                    <button class="btn btn-primary btn-small" (click)="navigateTo('/register')">Cadastro</button>
+                </ng-container>
+                <ng-container *ngIf="userType === 'admin'">
+                    <a (click)="navigateTo('/admin/dashboard')">Dashboard</a>
+                    <a (click)="navigateTo('/admin/shifts')">Plantões</a>
+                    <button class="btn btn-secondary btn-small" (click)="logout()">Sair</button>
+                </ng-container>
+                <ng-container *ngIf="userType === 'doctor'">
+                    <a (click)="navigateTo('/doctor/dashboard')">Dashboard</a>
+                    <a (click)="navigateTo('/doctor/schedule')">Minha Agenda</a>
+                    <a (click)="navigateTo('/doctor/marketplace')">Marketplace</a>
+                    <button class="btn btn-secondary btn-small" (click)="logout()">Sair</button>
+                </ng-container>
+            </nav>
+            <button class="mobile-menu-btn" (click)="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </div>
+</header>

@@ -2,13 +2,13 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HeaderComponent } from '../header.component';
+import { HeaderComponent } from '../header/header.component';
 
 @Component({
-    selector: 'app-login',
-    standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, HeaderComponent],
-    template: `
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, HeaderComponent],
+  template: `
     <app-header [userType]="'guest'"></app-header>
     
     <div class="auth-container">
@@ -60,7 +60,7 @@ import { HeaderComponent } from '../header.component';
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .auth-container {
       min-height: calc(100vh - 70px);
       display: flex;
@@ -147,47 +147,47 @@ import { HeaderComponent } from '../header.component';
   `]
 })
 export class LoginComponent {
-    loginForm: FormGroup;
-    isLoading = false;
+  loginForm: FormGroup;
+  isLoading = false;
 
-    constructor(
-        private fb: FormBuilder,
-        private router: Router
-    ) {
-        this.loginForm = this.fb.group({
-            email: ['', [Validators.required, Validators.email]],
-            password: ['', Validators.required]
-        });
+  constructor(
+    private fb: FormBuilder,
+    private router: Router
+  ) {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required]
+    });
+  }
+
+  isFieldInvalid(field: string): boolean {
+    const control = this.loginForm.get(field);
+    return !!(control && control.invalid && (control.dirty || control.touched));
+  }
+
+  onSubmit() {
+    if (this.loginForm.valid) {
+      this.isLoading = true;
+      const { email } = this.loginForm.value;
+
+      // Simulação de Login
+      setTimeout(() => {
+        // Lógica simples para demo: admin@syncmed.com vira admin, outros viram doctor
+        const userType = email.includes('admin') ? 'admin' : 'doctor';
+
+        localStorage.setItem('user', JSON.stringify({
+          email,
+          type: userType,
+          name: userType === 'admin' ? 'Administrador' : 'Dr. Fernando'
+        }));
+
+        this.isLoading = false;
+        this.router.navigate([userType === 'admin' ? '/admin/dashboard' : '/doctor/dashboard']);
+      }, 1000);
     }
+  }
 
-    isFieldInvalid(field: string): boolean {
-        const control = this.loginForm.get(field);
-        return !!(control && control.invalid && (control.dirty || control.touched));
-    }
-
-    onSubmit() {
-        if (this.loginForm.valid) {
-            this.isLoading = true;
-            const { email } = this.loginForm.value;
-
-            // Simulação de Login
-            setTimeout(() => {
-                // Lógica simples para demo: admin@syncmed.com vira admin, outros viram doctor
-                const userType = email.includes('admin') ? 'admin' : 'doctor';
-
-                localStorage.setItem('user', JSON.stringify({
-                    email,
-                    type: userType,
-                    name: userType === 'admin' ? 'Administrador' : 'Dr. Fernando'
-                }));
-
-                this.isLoading = false;
-                this.router.navigate([userType === 'admin' ? '/admin/dashboard' : '/doctor/dashboard']);
-            }, 1000);
-        }
-    }
-
-    navigateTo(route: string) {
-        this.router.navigate([route]);
-    }
+  navigateTo(route: string) {
+    this.router.navigate([route]);
+  }
 }
