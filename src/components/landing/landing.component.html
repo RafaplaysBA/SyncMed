@@ -9,7 +9,7 @@
         </div>
 
         <div class="container hero-content-wrapper">
-            <div class="hero-content">
+            <div class="hero-content" @fadeInUp>
                 <h1>Gestão de Plantões Médicos Simplificada</h1>
                 <p class="hero-subtitle">
                     Pare de perder tempo com planilhas e WhatsApp. Gerencie escalas médicas de forma profissional e
@@ -37,7 +37,7 @@
 <section class="features" id="features">
     <div class="container">
         <h2 class="section-title">Como o SyncMed Funciona</h2>
-        <div class="features-grid">
+        <div class="features-grid" #animatedSection @staggerFadeIn>
             <div class="feature-card" *ngFor="let feature of features">
                 <div class="feature-icon">{{ feature.icon }}</div>
                 <h3>{{ feature.title }}</h3>
@@ -50,7 +50,7 @@
 <section class="benefits">
     <div class="container">
         <h2 class="section-title">Benefícios Para Todos</h2>
-        <div class="benefits-grid">
+        <div class="benefits-grid" #animatedSection @staggerFadeIn>
             <div class="benefit-card">
                 <h3>Para Hospitais e Coordenadores</h3>
                 <ul>
@@ -73,26 +73,39 @@
     </div>
 </section>
 
-<section class="social-proof">
+<section class="testimonials">
     <div class="container">
-        <h2 class="section-title">Confiança e Resultados</h2>
-        <div class="stats-grid">
-            <div class="stat">
-                <div class="stat-number">500+</div>
-                <div class="stat-label">Médicos Cadastrados</div>
+        <h2 class="section-title">O Que Nossos Usuários Dizem</h2>
+        <div class="feedback-carousel" #animatedSection>
+            <button class="carousel-nav prev" (click)="prevFeedback()" aria-label="Previous feedback">
+                ❮
+            </button>
+
+            <div class="feedback-container">
+                <div class="feedback-slide" *ngFor="let feedback of feedbacks; let i = index"
+                    [class.active]="i === currentFeedback">
+                    <div class="feedback-content">
+                        <img [src]="feedback.image" [alt]="feedback.name" class="feedback-avatar">
+                        <div class="feedback-text">
+                            <p class="feedback-quote">"{{ feedback.feedback }}"</p>
+                            <div class="feedback-author">
+                                <h4>{{ feedback.name }}</h4>
+                                <p>{{ feedback.role }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="stat">
-                <div class="stat-number">50+</div>
-                <div class="stat-label">Hospitais Parceiros</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">10k+</div>
-                <div class="stat-label">Plantões Gerenciados</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">98%</div>
-                <div class="stat-label">Satisfação</div>
-            </div>
+
+            <button class="carousel-nav next" (click)="nextFeedbackManual()" aria-label="Next feedback">
+                ❯
+            </button>
+        </div>
+
+        <div class="feedback-indicators">
+            <button *ngFor="let feedback of feedbacks; let i = index" [class.active]="i === currentFeedback"
+                (click)="setFeedback(i)" [attr.aria-label]="'Feedback ' + (i + 1)">
+            </button>
         </div>
     </div>
 </section>
