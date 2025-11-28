@@ -68,6 +68,17 @@ import { HeaderComponent } from '../header/header.component';
             >
           </div>
 
+          <div class="form-group checkbox-group">
+            <input 
+              type="checkbox" 
+              id="lgpdConsent" 
+              formControlName="lgpdConsent"
+            >
+            <label for="lgpdConsent">
+              Li e concordo com os <a href="#" (click)="$event.preventDefault()">Termos de Uso</a> e <a href="#" (click)="$event.preventDefault()">Política de Privacidade</a>
+            </label>
+          </div>
+
           <button type="submit" class="btn btn-primary btn-full" [disabled]="registerForm.invalid || isLoading">
             {{ isLoading ? 'Criando conta...' : 'Criar Conta' }}
           </button>
@@ -145,6 +156,33 @@ import { HeaderComponent } from '../header/header.component';
       cursor: pointer;
       font-weight: 600;
     }
+
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-xs);
+    }
+
+    .checkbox-group input {
+      width: auto;
+      margin-top: 4px;
+    }
+
+    .checkbox-group label {
+      font-weight: 400;
+      font-size: 0.875rem;
+      line-height: 1.4;
+      margin-bottom: 0;
+    }
+
+    .checkbox-group a {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .checkbox-group a:hover {
+      text-decoration: underline;
+    }
   `]
 })
 export class RegisterComponent {
@@ -160,7 +198,8 @@ export class RegisterComponent {
       email: ['', [Validators.required, Validators.email]],
       userType: ['doctor', Validators.required],
       specialty: [''],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      lgpdConsent: [false, Validators.requiredTrue]
     });
   }
 
